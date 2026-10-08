@@ -3,7 +3,9 @@ import threading
 import time
 import json
 import os
+import uuid
 from typing import Dict, Any, List, Optional
+from datetime import datetime, timezone
 
 from tools.memory_tools import MemoryTools
 
@@ -25,7 +27,7 @@ class A2ABus:
         # load persisted messages if any
         if self._persist:
             try:
-                data = self.memory.load().get("memory", {})
+                data = self.memory.load_all() if hasattr(self.memory, "load_all") else {}
                 msgs = data.get(self.STORAGE_KEY, {})
                 if isinstance(msgs, dict):
                     self._messages = msgs
@@ -37,37 +39,37 @@ class A2ABus:
         if not self._persist:
             return
         try:
-            # load current memory, update the storate key, write back
-            mem = self.memory.load().get("memory", {})
-            mem[self.STORAGE_KEY] = self._messages
-            # memory.save appends a new entry; here we want to write a stable snapshot
-            # so we call lower-level write to the memory file if available
-            # fallback: use memory.save as snapshot entry
-            self.memory.save("a2a_snapshot", self._messages)
+            self.memory.save(self.STORAGE_KEY, self._messages)
         except Exception:
             # Don't fail on persistence
             pass
 
-    def publish(self, from_agent: str, to: str, topic: str, payload: Any, meta: Optional[Dict] = None):
+    def publish(self, from_agent: str, to: str, topic: str, payload: Any, meta: Optional[Dict] = None, task_id: Optional[str] = None):
         """
         Publish a message from one agent to another (to can be one agent name or 'broadcast' or comma-separated list).
         Message structure: {from, to, topic, payload, meta, timestamp}
         """
-        timestamp = time.strftime("%Y-%m-%d %H:%M:%S")
+        timestamp = datetime.now(timezone.utc).isoformat()
         msg = {
+            "id": str(uuid.uuid4()),
+            "task_id": task_id or (meta or {}).get("task_id"),
             "from": from_agent,
+            "sender": from_agent,
             "to": to,
+            "receiver": to,
             "topic": topic,
+            "type": topic,
             "payload": payload,
             "meta": meta or {},
             "timestamp": timestamp,
+            "status": "queued",
         }
 
         recipients = []
         if isinstance(to, str) and to.lower() == "broadcast":
             # broadcast to everyone known so far (keys in _messages)
             with self._lock:
-                recipients = list(self._messages.keys())
+                recipients = [name for name in self._messages if not name.startswith("_")]
         elif isinstance(to, str) and "," in to:
             recipients = [r.strip() for r in to.split(",") if r.strip()]
         else:
@@ -122,3 +124,16 @@ class A2ABus:
     def audit_log(self) -> List[Dict[str, Any]]:
         with self._lock:
             return self._messages.get("_audit", []).copy()
+
+    # Compatibility with the former tools.a2a_tools bus API.
+    def send(self, sender, receiver, topic, payload, task_id=None):
+        return self.publish(sender, receiver, topic, payload, task_id=task_id)
+
+    def direct_message(self, sender, receiver, topic, payload):
+        return self.send(sender, receiver, topic, payload)
+
+    def get_inbox(self, agent):
+        return self.peek(agent)
+
+    def get_audit_log(self):
+        return self.audit_log()

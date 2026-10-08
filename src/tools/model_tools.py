@@ -70,7 +70,7 @@ class ModelTools:
     # ----------------------------------------------------
     # MAIN TRAIN FUNCTION
     # ----------------------------------------------------
-    def train(self, df, target_col):
+    def train(self, df, target_col, model_name=None, class_weight=None):
         try:
             X = df.drop(columns=[target_col])
             y = df[target_col]
@@ -83,8 +83,8 @@ class ModelTools:
             # -------------------------------
             if task == "classification":
                 models = {
-                    "rf": RandomForestClassifier(),
-                    "logreg": LogisticRegression(max_iter=500),
+                    "rf": RandomForestClassifier(class_weight=class_weight, random_state=42),
+                    "logreg": LogisticRegression(max_iter=500, class_weight=class_weight),
                 }
             else:
                 models = {
@@ -92,6 +92,11 @@ class ModelTools:
                     "ridge": Ridge(),
                     "svr": SVR(),
                 }
+
+            if model_name:
+                if model_name not in models:
+                    return {"status": "error", "error": f"Model '{model_name}' is unavailable for {task}."}
+                models = {model_name: models[model_name]}
 
             best_model = None
             best_score = -999999
@@ -131,7 +136,8 @@ class ModelTools:
             # SAVE MODEL
             # -------------------------------
             model_path = os.path.join(self.output_dir, f"{best_name}_model.pkl")
-            pickle.dump(best_model, open(model_path, "wb"))
+            with open(model_path, "wb") as model_file:
+                pickle.dump(best_model, model_file)
 
             # -------------------------------
             # RETURN RESULTS
@@ -140,6 +146,7 @@ class ModelTools:
                 "status": "success",
                 "task_type": task,
                 "model_name": best_name,
+                "class_weight": class_weight if task == "classification" else None,
                 "model_path": model_path,
                 "metrics": best_metrics,
                 "sample_predictions": best_preds[:10].tolist(),

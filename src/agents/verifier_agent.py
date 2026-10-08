@@ -35,8 +35,8 @@ class VerifierAgent:
                     quality = "Acceptable"
                 else:
                     quality = "Weak"
-            elif "f1" in metrics:
-                f1 = metrics.get("f1")
+            elif "f1_score" in metrics or "f1" in metrics:
+                f1 = metrics.get("f1_score", metrics.get("f1"))
                 if f1 > 0.75:
                     quality = "Good"
                 elif f1 > 0.5:

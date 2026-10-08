@@ -30,6 +30,22 @@ This project demonstrates:
 
 ✔ Streamlit multi-page application
 
+## Phase 1 agentic workflow
+
+The application now includes a goal-driven local workflow alongside the existing analyst pages:
+
+`User goal → PlannerAgent → allowlisted ToolRegistry → ExecutionEngine → CriticAgent → (bounded re-plan)`
+
+The planner returns a validated JSON-compatible plan. With `GEMINI_API_KEY` configured it can use Gemini to select among the registered tools; without the key it uses a small goal-sensitive local planner. Tool execution is deterministic and never evaluates generated Python. `TaskStateStore` records each plan, step, output, critic decision, error, and retry count in `project_storage/tasks.json`. The critic applies basic checks only; richer model evaluation is deferred.
+
+Open **Agentic Analysis** in the Streamlit multipage navigation after uploading a CSV. The equivalent CLI is:
+
+```powershell
+python src/orchestrator.py path\to\data.csv --goal "Analyze the data and identify important factors" --target target_column
+```
+
+The canonical A2A implementation is `src/core/a2a_bus.py`. `src/tools/a2a_tools.py` remains as a compatibility import for the existing dashboard and now exposes that same implementation.
+
 
 # Problem Statement
 
