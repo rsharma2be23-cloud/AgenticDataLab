@@ -1,0 +1,214 @@
+{
+    "history": [
+        {
+            "timestamp": "2025-11-22 12:41:12",
+            "key": "profiler_output",
+            "value": {
+                "status": "success",
+                "rows": 4,
+                "cols": 3,
+                "dtypes": {
+                    "age": "int64",
+                    "gender": "object",
+                    "salary": "int64"
+                },
+                "missing": {
+                    "age": 0,
+                    "gender": 0,
+                    "salary": 0
+                },
+                "numeric_columns": [
+                    "age",
+                    "salary"
+                ],
+                "categorical_columns": [
+                    "gender"
+                ],
+                "sample_rows": [
+                    {
+                        "age": 23,
+                        "gender": "F",
+                        "salary": 45000
+                    },
+                    {
+                        "age": 30,
+                        "gender": "M",
+                        "salary": 55000
+                    },
+                    {
+                        "age": 26,
+                        "gender": "F",
+                        "salary": 48000
+                    },
+                    {
+                        "age": 40,
+                        "gender": "M",
+                        "salary": 80000
+                    }
+                ]
+            }
+        },
+        {
+            "timestamp": "2025-11-22 12:41:12",
+            "key": "eda_output",
+            "value": {
+                "status": "success",
+                "describe": {
+                    "age": {
+                        "count": 4.0,
+                        "unique": null,
+                        "top": null,
+                        "freq": null,
+                        "mean": 29.75,
+                        "std": 7.41057802513857,
+                        "min": 23.0,
+                        "25%": 25.25,
+                        "50%": 28.0,
+                        "75%": 32.5,
+                        "max": 40.0
+                    },
+                    "gender": {
+                        "count": 4,
+                        "unique": 2,
+                        "top": "F",
+                        "freq": 2,
+                        "mean": null,
+                        "std": null,
+                        "min": null,
+                        "25%": null,
+                        "50%": null,
+                        "75%": null,
+                        "max": null
+                    },
+                    "salary": {
+                        "count": 4.0,
+                        "unique": null,
+                        "top": null,
+                        "freq": null,
+                        "mean": 57000.0,
+                        "std": 15895.492023421819,
+                        "min": 45000.0,
+                        "25%": 47250.0,
+                        "50%": 51500.0,
+                        "75%": 61250.0,
+                        "max": 80000.0
+                    }
+                },
+                "histograms": [
+                    "eda_outputs/age_histogram.png",
+                    "eda_outputs/salary_histogram.png"
+                ]
+            }
+        },
+        {
+            "timestamp": "2025-11-22 12:41:15",
+            "key": "model_output",
+            "value": {
+                "status": "success",
+                "task": "regression",
+                "target_col": "salary",
+                "model_name": "rf",
+                "model_path": "models/best_model_rf.pkl",
+                "metrics": {
+                    "mse": 10682002.777777508,
+                    "r2": null
+                },
+                "cv_summary": {
+                    "rf": {
+                        "best_params": {
+                            "model__n_estimators": 200,
+                            "model__min_samples_split": 10,
+                            "model__max_depth": 20
+                        },
+                        "cv_scores": [
+                            null,
+                            null,
+                            null
+                        ],
+                        "cv_mean": null
+                    },
+                    "ridge": {
+                        "best_params": {
+                            "model__alpha": 1.0
+                        },
+                        "cv_scores": [
+                            null,
+                            null,
+                            null
+                        ],
+                        "cv_mean": null
+                    },
+                    "svr": {
+                        "best_params": {
+                            "model__epsilon": 0.1,
+                            "model__C": 10.0
+                        },
+                        "cv_scores": [
+                            null,
+                            null,
+                            null
+                        ],
+                        "cv_mean": null
+                    }
+                },
+                "test_sample_count": 1,
+                "predictions_sample": "[58268.33333333]"
+            }
+        },
+        {
+            "timestamp": "2025-11-22 12:41:15",
+            "key": "verifier_output",
+            "value": {
+                "status": "success",
+                "task": "regression",
+                "model": "rf",
+                "quality": "Unreliable",
+                "nan_metrics": true,
+                "data_size": "very_small",
+                "cv_stability": "unstable",
+                "metrics": {
+                    "mse": 10682002.777777508,
+                    "r2": null
+                },
+                "cv_scores": [
+                    null,
+                    null,
+                    null
+                ],
+                "notes": [
+                    "Metrics contain NaN values \u2014 possible data or model instability.",
+                    "Test sample size is extremely small. Results are not reliable.",
+                    "Cross-validation scores show high variance \u2014 model likely unstable.",
+                    "Model performance is very weak or undefined. Optimization required."
+                ],
+                "a2a_message": {
+                    "from": "VerifierAgent",
+                    "to": "NotebookSynthesizerAgent",
+                    "intent": "summarize_results",
+                    "payload": {
+                        "quality": "Unreliable",
+                        "metrics": {
+                            "mse": 10682002.777777508,
+                            "r2": null
+                        },
+                        "best_model": "rf",
+                        "warnings": [
+                            "Metrics contain NaN values \u2014 possible data or model instability.",
+                            "Test sample size is extremely small. Results are not reliable.",
+                            "Cross-validation scores show high variance \u2014 model likely unstable.",
+                            "Model performance is very weak or undefined. Optimization required."
+                        ]
+                    }
+                }
+            }
+        },
+        {
+            "timestamp": "2025-11-22 12:41:15",
+            "key": "notebook_output",
+            "value": {
+                "status": "success",
+                "notebook_path": "reports/auto_report.ipynb"
+            }
+        }
+    ]
+}

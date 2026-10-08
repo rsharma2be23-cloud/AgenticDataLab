@@ -1,0 +1,105 @@
+{
+    "status": "success",
+    "rows": 500,
+    "cols": 10,
+    "dtypes": {
+        "User_ID": "object",
+        "Age": "int64",
+        "Gender": "object",
+        "Daily_Screen_Time(hrs)": "float64",
+        "Sleep_Quality(1-10)": "float64",
+        "Stress_Level(1-10)": "float64",
+        "Days_Without_Social_Media": "float64",
+        "Exercise_Frequency(week)": "float64",
+        "Social_Media_Platform": "object",
+        "Happiness_Index(1-10)": "float64"
+    },
+    "missing": {
+        "User_ID": 0,
+        "Age": 0,
+        "Gender": 0,
+        "Daily_Screen_Time(hrs)": 0,
+        "Sleep_Quality(1-10)": 0,
+        "Stress_Level(1-10)": 0,
+        "Days_Without_Social_Media": 0,
+        "Exercise_Frequency(week)": 0,
+        "Social_Media_Platform": 0,
+        "Happiness_Index(1-10)": 0
+    },
+    "numeric_columns": [
+        "Age",
+        "Daily_Screen_Time(hrs)",
+        "Sleep_Quality(1-10)",
+        "Stress_Level(1-10)",
+        "Days_Without_Social_Media",
+        "Exercise_Frequency(week)",
+        "Happiness_Index(1-10)"
+    ],
+    "categorical_columns": [
+        "User_ID",
+        "Gender",
+        "Social_Media_Platform"
+    ],
+    "sample_rows": [
+        {
+            "User_ID": "U001",
+            "Age": 44,
+            "Gender": "Male",
+            "Daily_Screen_Time(hrs)": 3.1,
+            "Sleep_Quality(1-10)": 7.0,
+            "Stress_Level(1-10)": 6.0,
+            "Days_Without_Social_Media": 2.0,
+            "Exercise_Frequency(week)": 5.0,
+            "Social_Media_Platform": "Facebook",
+            "Happiness_Index(1-10)": 10.0
+        },
+        {
+            "User_ID": "U002",
+            "Age": 30,
+            "Gender": "Other",
+            "Daily_Screen_Time(hrs)": 5.1,
+            "Sleep_Quality(1-10)": 7.0,
+            "Stress_Level(1-10)": 8.0,
+            "Days_Without_Social_Media": 5.0,
+            "Exercise_Frequency(week)": 3.0,
+            "Social_Media_Platform": "LinkedIn",
+            "Happiness_Index(1-10)": 10.0
+        },
+        {
+            "User_ID": "U003",
+            "Age": 23,
+            "Gender": "Other",
+            "Daily_Screen_Time(hrs)": 7.4,
+            "Sleep_Quality(1-10)": 6.0,
+            "Stress_Level(1-10)": 7.0,
+            "Days_Without_Social_Media": 1.0,
+            "Exercise_Frequency(week)": 3.0,
+            "Social_Media_Platform": "YouTube",
+            "Happiness_Index(1-10)": 6.0
+        },
+        {
+            "User_ID": "U004",
+            "Age": 36,
+            "Gender": "Female",
+            "Daily_Screen_Time(hrs)": 5.7,
+            "Sleep_Quality(1-10)": 7.0,
+            "Stress_Level(1-10)": 8.0,
+            "Days_Without_Social_Media": 1.0,
+            "Exercise_Frequency(week)": 1.0,
+            "Social_Media_Platform": "TikTok",
+            "Happiness_Index(1-10)": 8.0
+        },
+        {
+            "User_ID": "U005",
+            "Age": 34,
+            "Gender": "Female",
+            "Daily_Screen_Time(hrs)": 7.0,
+            "Sleep_Quality(1-10)": 4.0,
+            "Stress_Level(1-10)": 7.0,
+            "Days_Without_Social_Media": 5.0,
+            "Exercise_Frequency(week)": 1.0,
+            "Social_Media_Platform": "X (Twitter)",
+            "Happiness_Index(1-10)": 8.0
+        }
+    ]
+}

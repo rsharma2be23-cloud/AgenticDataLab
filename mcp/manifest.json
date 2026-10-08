@@ -1,0 +1,24 @@
+{
+  "tools": [
+    { "name": "file.read", "description": "Read file from project" },
+    { "name": "file.write", "description": "Write a file (overwrite)" },
+    { "name": "file.append", "description": "Append text to a file" },
+    { "name": "file.list", "description": "List files in a folder" },
+    { "name": "file.delete", "description": "Delete a file" },
+
+    { "name": "dataset.describe", "description": "Describe a dataset" },
+    { "name": "dataset.missing", "description": "Compute missing values" },
+
+    { "name": "model.load", "description": "Load trained model" },
+    { "name": "model.predict", "description": "Run prediction" },
+
+    { "name": "notebook.create", "description": "Create Jupyter notebook" },
+    { "name": "notebook.append", "description": "Append notebook cell" },
+
+    { "name": "job.run", "description": "Run long job" },
+    { "name": "job.status", "description": "Check job status" },
+
+    { "name": "memory.read", "description": "Read long-term memory" },
+    { "name": "memory.write", "description": "Write long-term memory" }
+  ]
+}

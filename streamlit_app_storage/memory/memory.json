@@ -1,0 +1,440 @@
+{
+    "eda_output": {
+        "status": "success",
+        "rows": 500,
+        "cols": 10,
+        "describe": {
+            "User_ID": {
+                "count": 500,
+                "unique": 500,
+                "top": "U001",
+                "freq": 1,
+                "mean": "",
+                "std": "",
+                "min": "",
+                "25%": "",
+                "50%": "",
+                "75%": "",
+                "max": ""
+            },
+            "Age": {
+                "count": 500.0,
+                "unique": "",
+                "top": "",
+                "freq": "",
+                "mean": 32.988,
+                "std": 9.960636755204874,
+                "min": 16.0,
+                "25%": 24.0,
+                "50%": 34.0,
+                "75%": 41.0,
+                "max": 49.0
+            },
+            "Gender": {
+                "count": 500,
+                "unique": 3,
+                "top": "Male",
+                "freq": 248,
+                "mean": "",
+                "std": "",
+                "min": "",
+                "25%": "",
+                "50%": "",
+                "75%": "",
+                "max": ""
+            },
+            "Daily_Screen_Time(hrs)": {
+                "count": 500.0,
+                "unique": "",
+                "top": "",
+                "freq": "",
+                "mean": 5.53,
+                "std": 1.7348774017775426,
+                "min": 1.0,
+                "25%": 4.3,
+                "50%": 5.6,
+                "75%": 6.7,
+                "max": 10.8
+            },
+            "Sleep_Quality(1-10)": {
+                "count": 500.0,
+                "unique": "",
+                "top": "",
+                "freq": "",
+                "mean": 6.304,
+                "std": 1.5297923156618731,
+                "min": 2.0,
+                "25%": 5.0,
+                "50%": 6.0,
+                "75%": 7.0,
+                "max": 10.0
+            },
+            "Stress_Level(1-10)": {
+                "count": 500.0,
+                "unique": "",
+                "top": "",
+                "freq": "",
+                "mean": 6.618,
+                "std": 1.5429963303101861,
+                "min": 2.0,
+                "25%": 6.0,
+                "50%": 7.0,
+                "75%": 8.0,
+                "max": 10.0
+            },
+            "Days_Without_Social_Media": {
+                "count": 500.0,
+                "unique": "",
+                "top": "",
+                "freq": "",
+                "mean": 3.134,
+                "std": 1.858750630885066,
+                "min": 0.0,
+                "25%": 2.0,
+                "50%": 3.0,
+                "75%": 5.0,
+                "max": 9.0
+            },
+            "Exercise_Frequency(week)": {
+                "count": 500.0,
+                "unique": "",
+                "top": "",
+                "freq": "",
+                "mean": 2.448,
+                "std": 1.428066787478442,
+                "min": 0.0,
+                "25%": 1.0,
+                "50%": 2.0,
+                "75%": 3.0,
+                "max": 7.0
+            },
+            "Social_Media_Platform": {
+                "count": 500,
+                "unique": 6,
+                "top": "TikTok",
+                "freq": 95,
+                "mean": "",
+                "std": "",
+                "min": "",
+                "25%": "",
+                "50%": "",
+                "75%": "",
+                "max": ""
+            },
+            "Happiness_Index(1-10)": {
+                "count": 500.0,
+                "unique": "",
+                "top": "",
+                "freq": "",
+                "mean": 8.376,
+                "std": 1.5242278507763085,
+                "min": 4.0,
+                "25%": 7.0,
+                "50%": 9.0,
+                "75%": 10.0,
+                "max": 10.0
+            }
+        },
+        "numeric_columns": [
+            "Age",
+            "Daily_Screen_Time(hrs)",
+            "Sleep_Quality(1-10)",
+            "Stress_Level(1-10)",
+            "Days_Without_Social_Media",
+            "Exercise_Frequency(week)",
+            "Happiness_Index(1-10)"
+        ],
+        "categorical_columns": [
+            "User_ID",
+            "Gender",
+            "Social_Media_Platform"
+        ],
+        "histograms": [
+            "eda_outputs/hist_Age.png",
+            "eda_outputs/hist_Daily_Screen_Time(hrs).png",
+            "eda_outputs/hist_Sleep_Quality(1-10).png",
+            "eda_outputs/hist_Stress_Level(1-10).png",
+            "eda_outputs/hist_Days_Without_Social_Media.png",
+            "eda_outputs/hist_Exercise_Frequency(week).png",
+            "eda_outputs/hist_Happiness_Index(1-10).png"
+        ],
+        "boxplots": [
+            "eda_outputs/box_Age.png",
+            "eda_outputs/box_Daily_Screen_Time(hrs).png",
+            "eda_outputs/box_Sleep_Quality(1-10).png",
+            "eda_outputs/box_Stress_Level(1-10).png",
+            "eda_outputs/box_Days_Without_Social_Media.png",
+            "eda_outputs/box_Exercise_Frequency(week).png",
+            "eda_outputs/box_Happiness_Index(1-10).png"
+        ],
+        "missing_path": "eda_outputs/missing_heatmap.png",
+        "correlations": {
+            "pearson": {
+                "Age": {
+                    "Age": 1.0,
+                    "Daily_Screen_Time(hrs)": 0.0235,
+                    "Sleep_Quality(1-10)": -0.0538,
+                    "Stress_Level(1-10)": 0.0165,
+                    "Days_Without_Social_Media": -0.0258,
+                    "Exercise_Frequency(week)": 0.0641,
+                    "Happiness_Index(1-10)": 0.0185
+                },
+                "Daily_Screen_Time(hrs)": {
+                    "Age": 0.0235,
+                    "Daily_Screen_Time(hrs)": 1.0,
+                    "Sleep_Quality(1-10)": -0.7589,
+                    "Stress_Level(1-10)": 0.7399,
+                    "Days_Without_Social_Media": -0.0453,
+                    "Exercise_Frequency(week)": -0.099,
+                    "Happiness_Index(1-10)": -0.7052
+                },
+                "Sleep_Quality(1-10)": {
+                    "Age": -0.0538,
+                    "Daily_Screen_Time(hrs)": -0.7589,
+                    "Sleep_Quality(1-10)": 1.0,
+                    "Stress_Level(1-10)": -0.5849,
+                    "Days_Without_Social_Media": 0.0406,
+                    "Exercise_Frequency(week)": 0.0274,
+                    "Happiness_Index(1-10)": 0.6788
+                },
+                "Stress_Level(1-10)": {
+                    "Age": 0.0165,
+                    "Daily_Screen_Time(hrs)": 0.7399,
+                    "Sleep_Quality(1-10)": -0.5849,
+                    "Stress_Level(1-10)": 1.0,
+                    "Days_Without_Social_Media": -0.008,
+                    "Exercise_Frequency(week)": -0.0186,
+                    "Happiness_Index(1-10)": -0.7372
+                },
+                "Days_Without_Social_Media": {
+                    "Age": -0.0258,
+                    "Daily_Screen_Time(hrs)": -0.0453,
+                    "Sleep_Quality(1-10)": 0.0406,
+                    "Stress_Level(1-10)": -0.008,
+                    "Days_Without_Social_Media": 1.0,
+                    "Exercise_Frequency(week)": -0.0,
+                    "Happiness_Index(1-10)": 0.0635
+                },
+                "Exercise_Frequency(week)": {
+                    "Age": 0.0641,
+                    "Daily_Screen_Time(hrs)": -0.099,
+                    "Sleep_Quality(1-10)": 0.0274,
+                    "Stress_Level(1-10)": -0.0186,
+                    "Days_Without_Social_Media": -0.0,
+                    "Exercise_Frequency(week)": 1.0,
+                    "Happiness_Index(1-10)": 0.0412
+                },
+                "Happiness_Index(1-10)": {
+                    "Age": 0.0185,
+                    "Daily_Screen_Time(hrs)": -0.7052,
+                    "Sleep_Quality(1-10)": 0.6788,
+                    "Stress_Level(1-10)": -0.7372,
+                    "Days_Without_Social_Media": 0.0635,
+                    "Exercise_Frequency(week)": 0.0412,
+                    "Happiness_Index(1-10)": 1.0
+                }
+            },
+            "spearman": {
+                "Age": {
+                    "Age": 1.0,
+                    "Daily_Screen_Time(hrs)": 0.0227,
+                    "Sleep_Quality(1-10)": -0.0398,
+                    "Stress_Level(1-10)": 0.0175,
+                    "Days_Without_Social_Media": -0.0276,
+                    "Exercise_Frequency(week)": 0.0659,
+                    "Happiness_Index(1-10)": 0.0153
+                },
+                "Daily_Screen_Time(hrs)": {
+                    "Age": 0.0227,
+                    "Daily_Screen_Time(hrs)": 1.0,
+                    "Sleep_Quality(1-10)": -0.7532,
+                    "Stress_Level(1-10)": 0.7355,
+                    "Days_Without_Social_Media": -0.0453,
+                    "Exercise_Frequency(week)": -0.0638,
+                    "Happiness_Index(1-10)": -0.7061
+                },
+                "Sleep_Quality(1-10)": {
+                    "Age": -0.0398,
+                    "Daily_Screen_Time(hrs)": -0.7532,
+                    "Sleep_Quality(1-10)": 1.0,
+                    "Stress_Level(1-10)": -0.5801,
+                    "Days_Without_Social_Media": 0.0521,
+                    "Exercise_Frequency(week)": 0.0161,
+                    "Happiness_Index(1-10)": 0.6856
+                },
+                "Stress_Level(1-10)": {
+                    "Age": 0.0175,
+                    "Daily_Screen_Time(hrs)": 0.7355,
+                    "Sleep_Quality(1-10)": -0.5801,
+                    "Stress_Level(1-10)": 1.0,
+                    "Days_Without_Social_Media": -0.0253,
+                    "Exercise_Frequency(week)": -0.0127,
+                    "Happiness_Index(1-10)": -0.7641
+                },
+                "Days_Without_Social_Media": {
+                    "Age": -0.0276,
+                    "Daily_Screen_Time(hrs)": -0.0453,
+                    "Sleep_Quality(1-10)": 0.0521,
+                    "Stress_Level(1-10)": -0.0253,
+                    "Days_Without_Social_Media": 1.0,
+                    "Exercise_Frequency(week)": -0.0011,
+                    "Happiness_Index(1-10)": 0.0786
+                },
+                "Exercise_Frequency(week)": {
+                    "Age": 0.0659,
+                    "Daily_Screen_Time(hrs)": -0.0638,
+                    "Sleep_Quality(1-10)": 0.0161,
+                    "Stress_Level(1-10)": -0.0127,
+                    "Days_Without_Social_Media": -0.0011,
+                    "Exercise_Frequency(week)": 1.0,
+                    "Happiness_Index(1-10)": 0.0418
+                },
+                "Happiness_Index(1-10)": {
+                    "Age": 0.0153,
+                    "Daily_Screen_Time(hrs)": -0.7061,
+                    "Sleep_Quality(1-10)": 0.6856,
+                    "Stress_Level(1-10)": -0.7641,
+                    "Days_Without_Social_Media": 0.0786,
+                    "Exercise_Frequency(week)": 0.0418,
+                    "Happiness_Index(1-10)": 1.0
+                }
+            },
+            "kendall": {
+                "Age": {
+                    "Age": 1.0,
+                    "Daily_Screen_Time(hrs)": 0.015,
+                    "Sleep_Quality(1-10)": -0.0296,
+                    "Stress_Level(1-10)": 0.0124,
+                    "Days_Without_Social_Media": -0.0188,
+                    "Exercise_Frequency(week)": 0.0499,
+                    "Happiness_Index(1-10)": 0.0123
+                },
+                "Daily_Screen_Time(hrs)": {
+                    "Age": 0.015,
+                    "Daily_Screen_Time(hrs)": 1.0,
+                    "Sleep_Quality(1-10)": -0.6044,
+                    "Stress_Level(1-10)": 0.5852,
+                    "Days_Without_Social_Media": -0.0329,
+                    "Exercise_Frequency(week)": -0.0467,
+                    "Happiness_Index(1-10)": -0.5598
+                },
+                "Sleep_Quality(1-10)": {
+                    "Age": -0.0296,
+                    "Daily_Screen_Time(hrs)": -0.6044,
+                    "Sleep_Quality(1-10)": 1.0,
+                    "Stress_Level(1-10)": -0.4777,
+                    "Days_Without_Social_Media": 0.0408,
+                    "Exercise_Frequency(week)": 0.0119,
+                    "Happiness_Index(1-10)": 0.5795
+                },
+                "Stress_Level(1-10)": {
+                    "Age": 0.0124,
+                    "Daily_Screen_Time(hrs)": 0.5852,
+                    "Sleep_Quality(1-10)": -0.4777,
+                    "Stress_Level(1-10)": 1.0,
+                    "Days_Without_Social_Media": -0.0196,
+                    "Exercise_Frequency(week)": -0.0099,
+                    "Happiness_Index(1-10)": -0.6533
+                },
+                "Days_Without_Social_Media": {
+                    "Age": -0.0188,
+                    "Daily_Screen_Time(hrs)": -0.0329,
+                    "Sleep_Quality(1-10)": 0.0408,
+                    "Stress_Level(1-10)": -0.0196,
+                    "Days_Without_Social_Media": 1.0,
+                    "Exercise_Frequency(week)": -0.0011,
+                    "Happiness_Index(1-10)": 0.0615
+                },
+                "Exercise_Frequency(week)": {
+                    "Age": 0.0499,
+                    "Daily_Screen_Time(hrs)": -0.0467,
+                    "Sleep_Quality(1-10)": 0.0119,
+                    "Stress_Level(1-10)": -0.0099,
+                    "Days_Without_Social_Media": -0.0011,
+                    "Exercise_Frequency(week)": 1.0,
+                    "Happiness_Index(1-10)": 0.0323
+                },
+                "Happiness_Index(1-10)": {
+                    "Age": 0.0123,
+                    "Daily_Screen_Time(hrs)": -0.5598,
+                    "Sleep_Quality(1-10)": 0.5795,
+                    "Stress_Level(1-10)": -0.6533,
+                    "Days_Without_Social_Media": 0.0615,
+                    "Exercise_Frequency(week)": 0.0323,
+                    "Happiness_Index(1-10)": 1.0
+                }
+            }
+        },
+        "corr_image_paths": {
+            "pearson": "eda_outputs/corr_pearson.png",
+            "spearman": "eda_outputs/corr_spearman.png",
+            "kendall": "eda_outputs/corr_kendall.png"
+        },
+        "outlier_counts": {
+            "Age": 0,
+            "Daily_Screen_Time(hrs)": 2,
+            "Sleep_Quality(1-10)": 0,
+            "Stress_Level(1-10)": 1,
+            "Days_Without_Social_Media": 0,
+            "Exercise_Frequency(week)": 2,
+            "Happiness_Index(1-10)": 0
+        },
+        "skew_kurtosis": {
+            "Age": {
+                "skewness": -0.1218,
+                "kurtosis": -1.2298
+            },
+            "Daily_Screen_Time(hrs)": {
+                "skewness": 0.0347,
+                "kurtosis": -0.1566
+            },
+            "Sleep_Quality(1-10)": {
+                "skewness": 0.032,
+                "kurtosis": -0.4003
+            },
+            "Stress_Level(1-10)": {
+                "skewness": -0.0929,
+                "kurtosis": -0.279
+            },
+            "Days_Without_Social_Media": {
+                "skewness": 0.0798,
+                "kurtosis": -0.6885
+            },
+            "Exercise_Frequency(week)": {
+                "skewness": 0.24,
+                "kurtosis": -0.3759
+            },
+            "Happiness_Index(1-10)": {
+                "skewness": -0.6888,
+                "kurtosis": -0.2735
+            }
+        },
+        "vif": {
+            "status": "success",
+            "vif": {
+                "Age": 1.0144,
+                "Daily_Screen_Time(hrs)": 3.5564,
+                "Sleep_Quality(1-10)": 2.6672,
+                "Stress_Level(1-10)": 2.8378,
+                "Days_Without_Social_Media": 1.0094,
+                "Exercise_Frequency(week)": 1.026,
+                "Happiness_Index(1-10)": 2.8201
+            }
+        }
+    },
+    "file_uploaded": {
+        "rows": 500,
+        "cols": [
+            "User_ID",
+            "Age",
+            "Gender",
+            "Daily_Screen_Time(hrs)",
+            "Sleep_Quality(1-10)",
+            "Stress_Level(1-10)",
+            "Days_Without_Social_Media",
+            "Exercise_Frequency(week)",
+            "Social_Media_Platform",
+            "Happiness_Index(1-10)"
+        ]
+    }
+}
