@@ -19,6 +19,7 @@ sys.path.append(SRC_DIR)
 
 from core.a2a_bus import A2ABus
 from agents.model_agent import ModelAgent
+from agents.explainability_agent import ExplainabilityAgent
 from tools.model_tools import ModelTools
 
 # ------------------------------------------------------
@@ -45,6 +46,7 @@ df = st.session_state["uploaded_df"]
 st.subheader("🎯 Select Target Column")
 columns = df.columns.tolist()
 target = st.selectbox("Choose the column to predict:", columns)
+tune_candidate = st.checkbox("Tune the leading candidate (bounded randomized search)", value=False)
 
 st.write("### 📄 Dataset Preview")
 st.dataframe(df.head(), use_container_width=True)
@@ -82,13 +84,15 @@ if st.button("🚀 Train Model (Direct)", key="manual_train_btn"):
     st.info("⏳ Training model… please wait.")
 
     model_tool = ModelTools()
-    result = model_tool.train(df, target)
+    result = model_tool.train(df, target, tune=tune_candidate)
 
     if result["status"] == "error":
         st.error(f"❌ Error: {result['error']}")
         st.stop()
 
     st.session_state["model_output"] = result
+    st.session_state.pop("global_explanation", None)
+    st.session_state.pop("local_explanation", None)
     st.success("🎉 Model trained successfully!")
     
     # DISPLAY RESULTS
@@ -100,6 +104,8 @@ if st.button("🚀 Train Model (Direct)", key="manual_train_btn"):
 
     st.write("### 📊 Metrics")
     st.json(result["metrics"])
+    st.write("### Cross-validated model comparison")
+    st.dataframe(pd.DataFrame(result.get("model_comparison", [])), use_container_width=True)
 
     if "sample_predictions" in result:
         st.subheader("🔮 Sample Predictions")
@@ -113,11 +119,13 @@ if st.button("🤖 Train Model via Agent (A2A)", key="agent_train_btn"):
     st.info("⏳ Agent running… please wait.")
 
     result = model_agent.run(df, target)
-    st.session_state["model_output"] = result
 
     if result["status"] == "error":
         st.error(result["error"])
     else:
+        st.session_state["model_output"] = result
+        st.session_state.pop("global_explanation", None)
+        st.session_state.pop("local_explanation", None)
         st.success("🤖 ModelAgent finished training!")
         st.json(result)
 
@@ -168,6 +176,26 @@ if "model_output" in st.session_state:
         col2.metric("R² Score", round(r2, 3) if r2 else "N/A")
 
     st.json(metrics)
+    if result.get("model_comparison"):
+        st.write("### Cross-validated model comparison")
+        st.dataframe(pd.DataFrame(result["model_comparison"]), use_container_width=True)
+    if result.get("artifact_path") and result.get("status") == "success":
+        st.markdown("### Model explanations")
+        explain_col, local_col = st.columns(2)
+        with explain_col:
+            if st.button("Compute global feature importance"):
+                explanation = ExplainabilityAgent().explain_global(result["artifact_path"], df, target=target)
+                st.session_state["global_explanation"] = explanation
+            if st.session_state.get("global_explanation"):
+                st.json(st.session_state["global_explanation"])
+        with local_col:
+            row_index = st.number_input("Row index to explain", min_value=0, max_value=max(0, len(df) - 1), value=0)
+            if st.button("Explain this prediction"):
+                explanation = ExplainabilityAgent().explain_prediction(
+                    result["artifact_path"], df.iloc[int(row_index)], df)
+                st.session_state["local_explanation"] = explanation
+            if st.session_state.get("local_explanation"):
+                st.json(st.session_state["local_explanation"])
 
 # ---------------------------------------------------------
 # GEMINI INSIGHTS: Explain model results

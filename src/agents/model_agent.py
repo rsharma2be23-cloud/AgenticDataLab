@@ -14,7 +14,9 @@ class ModelAgent:
     def __init__(self, a2a_bus: A2ABus = None, output_dir="models", random_state=42, n_iter_search=20, cv=3, model_tools=None):
         self.output_dir = output_dir
         self.memory = MemoryTools()
-        self.model_tools = model_tools or ModelTools(output_dir=output_dir)
+        self.model_tools = model_tools or ModelTools(output_dir=output_dir, cv=cv,
+                                                      random_state=random_state,
+                                                      max_tuning_trials=n_iter_search)
         self.random_state = random_state
         self.n_iter_search = n_iter_search
         self.cv = cv
@@ -27,7 +29,7 @@ class ModelAgent:
         y = df[target_col]
         if self.model_tools._detect_task(y) == "classification":
             counts = y.value_counts(normalize=True, dropna=True)
-            skewed = bool(len(counts) > 1 and counts.iloc[0] >= 0.7)
+            skewed = bool(len(counts) > 1 and counts.iloc[0] >= 0.8)
             return {"model_name": None, "class_weight": "balanced" if skewed else None,
                     "reason": "Balance class weights for a strongly imbalanced target." if skewed else "Compare supported classifiers."}
         return {"model_name": None, "class_weight": None, "reason": "Compare supported regression models."}
@@ -57,10 +59,14 @@ class ModelAgent:
                 return {"status": "error", "error": f"Target column '{target_col}' was not found."}
             strategy = self.choose_strategy(df, target_col)
             result = self.model_tools.train(df, target_col, model_name=strategy["model_name"],
-                                            class_weight=strategy["class_weight"])
+                                            class_weight=strategy["class_weight"], test_size=test_size,
+                                            random_state=random_state)
             result["agent_decision"] = strategy
         except Exception as exc:
             return {"status": "error", "error": str(exc)}
+
+        if result.get("status") != "success":
+            return result
 
         # Save result to memory
         self.memory.save("model_output", result)

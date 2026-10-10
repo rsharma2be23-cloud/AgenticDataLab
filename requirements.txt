@@ -10,3 +10,6 @@ nbformat
 jsonschema
 python-dotenv
 joblib
+mcp>=1.9,<2
+# Optional explainability dependency. Model-native and permutation fallbacks work without it.
+# shap

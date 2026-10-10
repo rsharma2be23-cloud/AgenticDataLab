@@ -1,0 +1,16 @@
+{
+  "schema_version": 1,
+  "benchmark": "AgenticDataLab deterministic workflow smoke benchmark",
+  "dataset_version": "synthetic-v1-seed-20261010",
+  "tasks": [
+    {"id": "profile", "kind": "profiling", "tool": "profile_dataset", "goal": "Profile this dataset"},
+    {"id": "quality", "kind": "data_quality", "tool": "analyze_data_quality", "goal": "Investigate data quality issues"},
+    {"id": "classification", "kind": "classification", "tool": "train_model", "goal": "Train a classification model. Target: target"},
+    {"id": "regression", "kind": "regression", "tool": "train_model", "goal": "Train a regression model. Target: target"},
+    {"id": "model_comparison", "kind": "model_comparison", "tool": "train_model", "goal": "Compare classification models. Target: target"},
+    {"id": "explainability", "kind": "explainability", "tool": "explain_global", "goal": "Explain important features. Target: target"},
+    {"id": "report", "kind": "report", "tool": "generate_report", "goal": "Generate an analytical report"},
+    {"id": "invalid", "kind": "invalid_request", "tool": null, "goal": ""},
+    {"id": "ambiguous", "kind": "ambiguous_request", "tool": "train_model", "goal": "Train a classification model. Target: target"}
+  ]
+}

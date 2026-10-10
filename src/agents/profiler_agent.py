@@ -16,11 +16,11 @@ except Exception:
 
 
 class ProfilerAgent:
-    def __init__(self, a2a_bus: A2ABus = None, output_dir="reports"):
+    def __init__(self, a2a_bus: A2ABus = None, output_dir="reports", memory=None):
         self.output_dir = output_dir
         os.makedirs(self.output_dir, exist_ok=True)
         self.file_tool = FileTools()
-        self.memory = MemoryTools()
+        self.memory = memory or MemoryTools()
         self.a2a_bus = a2a_bus
         if self.a2a_bus and hasattr(self.a2a_bus, "register_agent"):
             self.a2a_bus.register_agent("profiler")
@@ -39,7 +39,9 @@ class ProfilerAgent:
             }
 
             # persist to memory
-            self.memory.save("profiler_output", profile)
+            # Keep sample values in the immediate tool response only, not long-term storage.
+            memory_profile = {key: value for key, value in profile.items() if key != "sample_rows"}
+            self.memory.save("profiler_output", memory_profile)
 
             # publish message on bus for EDAAgent (A2A)
             if self.a2a_bus:
@@ -47,7 +49,7 @@ class ProfilerAgent:
                     from_agent="profiler",
                     to="eda",
                     topic="profiler.completed",
-                    payload={"profiler_output": profile}
+                    payload={"profiler_output": memory_profile}
                 )
 
             return profile

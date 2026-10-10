@@ -61,6 +61,8 @@ class CriticResult:
     status: str
     reason: str
     recommendations: List[str] = field(default_factory=list)
+    confidence: float = 1.0
+    issues: List[str] = field(default_factory=list)
 
     def __post_init__(self):
         self.status = self.status.upper()
@@ -70,9 +72,14 @@ class CriticResult:
             raise ValueError("Critic reason must be a non-empty string")
         if not isinstance(self.recommendations, list) or not all(isinstance(x, str) for x in self.recommendations):
             raise ValueError("Critic recommendations must be a list of strings")
+        if not isinstance(self.confidence, (int, float)) or not 0.0 <= float(self.confidence) <= 1.0:
+            raise ValueError("Critic confidence must be between 0 and 1")
+        if not isinstance(self.issues, list) or not all(isinstance(x, str) for x in self.issues):
+            raise ValueError("Critic issues must be a list of strings")
 
     def to_dict(self):
-        return {"status": self.status, "reason": self.reason, "recommendations": self.recommendations}
+        return {"status": self.status, "reason": self.reason, "recommendations": self.recommendations,
+                "confidence": float(self.confidence), "issues": self.issues}
 
 
 @dataclass

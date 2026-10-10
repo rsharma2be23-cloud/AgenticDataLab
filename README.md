@@ -46,6 +46,69 @@ python src/orchestrator.py path\to\data.csv --goal "Analyze the data and identif
 
 The canonical A2A implementation is `src/core/a2a_bus.py`. `src/tools/a2a_tools.py` remains as a compatibility import for the existing dashboard and now exposes that same implementation.
 
+## Phase 2 ML capabilities
+
+The AutoML path uses stratified cross-validation for classification and shuffled K-fold validation for regression. It compares Logistic Regression, Random Forest, HistGradientBoosting, SVM, and KNN classifiers; regression candidates include Linear Regression, Ridge, Random Forest, GradientBoosting, HistGradientBoosting, and SVR. It reports fold mean/deviation, training and held-out metrics, detects severe class imbalance, and supports bounded randomized tuning of the leading candidate.
+
+`DataQualityAgent` measures missingness, duplicates, constant and near-constant columns, cardinality, likely identifiers, non-finite values, IQR outliers, class balance, and possible target leakage. Its 0–100 score uses an explicit penalty per observed issue/warning. `ExplainabilityAgent` prefers SHAP for supported tree models when SHAP is installed, then falls back to model-native importance, coefficients, or permutation importance. Local explanations use SHAP or per-feature prediction perturbations. SHAP is optional; the core app does not require it.
+
+Experiments save a versioned preprocessing/model pipeline and feature schema under `models/`; the artifact can be loaded with `ModelTools.load_artifact()` or used through `ModelTools.predict()`. Unit tests can be run with `python -m unittest discover -s tests -v` after installing `requirements.txt`.
+
+## Phase 3 AI infrastructure
+
+### MCP server
+
+`src/mcp_server.py` implements an MCP server using the official Python SDK and stdio transport. It registers the existing `ToolRegistry` operations for profiling, quality, EDA, training/comparison, evaluation, explainability, and reports. Train a model before evaluation/explanation in the same server process; the in-process cache is intentionally not a cross-session model store.
+
+```powershell
+pip install -r requirements.txt
+$env:AGENTIC_DATA_DIR = (Resolve-Path .\streamlit_app_storage\uploads).Path
+python src/mcp_server.py
+```
+
+MCP clients should launch the command as an stdio server. Dataset arguments are CSV basenames resolved within `AGENTIC_DATA_DIR`; parent paths and non-CSV files are rejected. `AGENTIC_MCP_MAX_DATASET_BYTES` defaults to 50 MiB and `AGENTIC_MCP_MAX_DATASET_ROWS` defaults to 100,000. Model CV folds and randomized-search trials are bounded by tool input validation. MCP writes protocol messages to stdout, so application logging belongs on stderr.
+
+### A2A lifecycle
+
+`A2ABus.publish` validates JSON payloads and creates a message with message/task/correlation IDs, sender/recipient, type, status, timestamp, retry count, and error field. `fetch`/`peek` preserve the dashboard API. A consumer may pass a fetched message to `dispatch(handler, timeout_seconds=..., max_retries=...)`; success and failure are explicit and successful message IDs are deduplicated within the process. A Python thread cannot forcibly interrupt a timed-out handler, so timeout-sensitive handlers should be idempotent; the timeout bounds how long the caller waits, not the underlying worker's lifetime. This is a local in-process bus, not a distributed queue. Legacy `src/tools/a2a_tools.py` imports the canonical implementation.
+
+### Workflow state, memory, and traces
+
+`TaskStateStore` writes versioned JSON snapshots atomically to `project_storage/tasks.json`. It preserves status, plan, step results, evaluation summaries, artifact references, approvals, and execution history; raw sample rows/data are removed before persistence. Corrupt or missing JSON is treated as empty state, and `cleanup()` removes only old terminal tasks. `AnalyticalMemoryStore` writes separate compact findings to `project_storage/analytical_memory.json`, supports relevance-ranked retrieval, and rejects records containing secret-like values. The execution engine retrieves by dataset schema signature and stores only metric/quality summaries and artifact references.
+
+`ExecutionTracer` appends correlated JSONL events at `project_storage/execution_traces.jsonl` (override with `AGENTIC_TRACE_PATH`). It records tool/workflow status, duration, agent, retries, replans, approvals, and errors; it excludes prompt/data fields and redacts common secret patterns. LLM token counts are not available from the current planner interface, so they are not reported. The JSONL file can be read by a future Streamlit trace view.
+
+### Optional MLflow
+
+Install the optional adapter with `pip install -r requirements-optional.txt` and set `MLFLOW_TRACKING_URI`, for example `file:./mlruns`. `MLFLOW_EXPERIMENT_NAME` defaults to `AgenticDataLab`. Training logs model parameters, CV and final metrics, a dataset shape/fingerprint, and the saved model artifact. With no URI, tracking is disabled; when configured but MLflow cannot be imported or contacted, model training still succeeds and the result contains `tracking.status = unavailable`.
+
+### Approval foundation
+
+Configure comma-separated tool names in `AGENTIC_APPROVAL_TOOLS`, or pass a set/callback to `ExecutionEngine(approval_required=...)`. A gated step is saved as `pending_approval` and does not execute. `resolve_approval(task_id, step_id, approved, actor=...)` persists an approved/rejected decision and trace. Approved tasks can be resumed by calling `run` with the same task ID and input dataset. Rejected tasks remain terminal. The approval UI is not part of this phase.
+
+### Reproducible benchmark
+
+The versioned fixture data and task manifest are in `benchmarks/`. Execute with:
+
+```powershell
+python benchmarks/run_benchmark.py
+```
+
+The runner saves each real success, validation rejection, or failure to `benchmark_results/latest.json` (or `AGENTIC_BENCHMARK_OUTPUT`). It asks the local deterministic planner to produce a plan for each valid task, then runs the applicable tool path; no paid model service is called. Metrics are: task completion (successful valid tasks plus correctly rejected invalid/ambiguous tasks divided by all tasks); schema validity (accepted tool schemas or expected safe rejection divided by all tasks); plan validity (valid planner schemas divided by valid-plan tasks); tool-selection match (expected operation appears in the locally generated plan, divided by tasks with an expected tool); tool success (successful valid operations divided by valid tasks); evidence coverage (successful results with at least one non-status result field divided by successful valid operations); failure rate (unexpected failures divided by all tasks); retry rate (tasks with an actual timeout retry divided by all tasks); and mean wall duration. These are deterministic harness checks, not validated general-purpose agent accuracy scores.
+
+### Configuration and validation
+
+Runtime requirements are declared in `requirements.txt`; MLflow and SHAP remain optional. Existing `GEMINI_API_KEY` remains optional for planning, and `GOOGLE_API_KEY` optionally enables notebook report insights. Other settings: `AGENTIC_DATA_DIR`, `AGENTIC_MCP_MAX_DATASET_BYTES`, `AGENTIC_MCP_MAX_DATASET_ROWS`, `AGENTIC_TRACE_PATH`, `AGENTIC_APPROVAL_TOOLS`, `AGENTIC_BENCHMARK_OUTPUT`, `MLFLOW_TRACKING_URI`, and `MLFLOW_EXPERIMENT_NAME`. Never put credential values in workflow goals or benchmark fixtures. No arbitrary shell or generated Python execution is exposed.
+
+Run targeted and full tests with:
+
+```powershell
+python -m unittest discover -s tests -p test_phase3_infrastructure.py -v
+python -m unittest discover -s tests -v
+```
+
+In the available Python 3.12.14 runtime, `compileall` succeeded; the Phase 3 infrastructure suite ran 11 tests with 10 passing and the MCP protocol integration test skipped; all 6 existing agentic architecture tests passed. The full discovery run had one import error because `scikit-learn` was unavailable, and it skipped MCP protocol integration because the installed runtime did not include the SDK. The benchmark result records 9 task outcomes, including failures caused by the missing `scikit-learn` and `matplotlib` packages. Live MCP discovery/calls and the ML model tests need a project environment installed from `requirements.txt` before they can be verified.
+
 
 # Problem Statement
 

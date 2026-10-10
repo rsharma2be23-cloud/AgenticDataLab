@@ -1,24 +1,22 @@
 {
+  "name": "AgenticDataLab",
+  "description": "Local MCP stdio server backed by the AgenticDataLab allowlisted ToolRegistry.",
+  "entrypoint": "python src/mcp_server.py",
+  "transport": "stdio",
   "tools": [
-    { "name": "file.read", "description": "Read file from project" },
-    { "name": "file.write", "description": "Write a file (overwrite)" },
-    { "name": "file.append", "description": "Append text to a file" },
-    { "name": "file.list", "description": "List files in a folder" },
-    { "name": "file.delete", "description": "Delete a file" },
-
-    { "name": "dataset.describe", "description": "Describe a dataset" },
-    { "name": "dataset.missing", "description": "Compute missing values" },
-
-    { "name": "model.load", "description": "Load trained model" },
-    { "name": "model.predict", "description": "Run prediction" },
-
-    { "name": "notebook.create", "description": "Create Jupyter notebook" },
-    { "name": "notebook.append", "description": "Append notebook cell" },
-
-    { "name": "job.run", "description": "Run long job" },
-    { "name": "job.status", "description": "Check job status" },
-
-    { "name": "memory.read", "description": "Read long-term memory" },
-    { "name": "memory.write", "description": "Write long-term memory" }
-  ]
+    {"name": "list_analytics_tools", "input": {}, "description": "Discover available analytics tools."},
+    {"name": "profile_dataset", "input": {"dataset": "CSV filename"}, "description": "Profile rows, types, and missingness."},
+    {"name": "analyze_data_quality", "input": {"dataset": "CSV filename", "target_col": "optional string"}, "description": "Analyze missingness, duplicates, leakage, outliers, and class balance."},
+    {"name": "run_eda", "input": {"dataset": "CSV filename"}, "description": "Run descriptive statistics, correlations, and outlier analysis."},
+    {"name": "train_model", "input": {"dataset": "CSV filename", "target_col": "string", "task_type": "optional classification|regression", "cv": "2-10", "tune": "boolean", "n_iter": "1-10"}, "description": "Train a bounded model-comparison experiment."},
+    {"name": "evaluate_model", "input": {"dataset": "CSV filename"}, "description": "Evaluate the latest model from this server process."},
+    {"name": "compare_models", "input": {"dataset": "CSV filename", "target_col": "string", "task_type": "optional classification|regression", "cv": "2-10"}, "description": "Compare candidates using cross-validation."},
+    {"name": "explain_model", "input": {"dataset": "CSV filename", "method": "auto|model_native|permutation|shap", "top_n": "1-100"}, "description": "Explain the latest in-process model artifact."},
+    {"name": "generate_report", "input": {"dataset": "CSV filename"}, "description": "Generate a report from profile and EDA results."}
+  ],
+  "configuration": {
+    "AGENTIC_DATA_DIR": "streamlit_app_storage/uploads",
+    "AGENTIC_MCP_MAX_DATASET_BYTES": "52428800",
+    "AGENTIC_MCP_MAX_DATASET_ROWS": "100000"
+  }
 }
