@@ -1,0 +1,24 @@
+services:
+  agenticdatalab:
+    build: .
+    ports:
+      - "8501:8501"
+    environment:
+      GEMINI_API_KEY: ${GEMINI_API_KEY:-}
+      GOOGLE_API_KEY: ${GOOGLE_API_KEY:-}
+      AGENTIC_TRACE_PATH: /app/project_storage/execution_traces.jsonl
+      MLFLOW_TRACKING_URI: ${MLFLOW_TRACKING_URI:-}
+      MLFLOW_EXPERIMENT_NAME: ${MLFLOW_EXPERIMENT_NAME:-AgenticDataLab}
+      AGENTIC_APPROVAL_TOOLS: ${AGENTIC_APPROVAL_TOOLS:-}
+    volumes:
+      - agentic_state:/app/project_storage
+      - agentic_models:/app/models
+      - agentic_reports:/app/reports
+      - agentic_streamlit:/app/streamlit_app_storage
+    restart: unless-stopped
+
+volumes:
+  agentic_state:
+  agentic_models:
+  agentic_reports:
+  agentic_streamlit:

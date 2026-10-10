@@ -55,8 +55,30 @@ class ExecutionEngine:
         dataset_metadata["signature"] = hashlib.sha256(
             (str(dataset_metadata["rows"]) + "|" + "|".join(dataset_metadata["column_names"]) + "|" +
              "|".join(dataset_metadata["dtypes"].values())).encode("utf-8")).hexdigest()
+        # Used only to bind an approval to the exact in-memory frame, not for memory lookup.
+        # Store a digest rather than raw rows; unsupported object values fall back to schema binding.
+        try:
+            import pandas as pd
+            row_hash = pd.util.hash_pandas_object(df, index=True).values.tobytes()
+            dataset_metadata["approval_signature"] = hashlib.sha256(
+                dataset_metadata["signature"].encode("ascii") + row_hash).hexdigest()
+        except (TypeError, ValueError):
+            dataset_metadata["approval_signature"] = dataset_metadata["signature"]
         prior = self.state_store.get(task_id)
         resuming = bool(prior and prior.get("status") in {"pending_approval", "approved"})
+        # A saved approval is bound to the dataset that was reviewed. Never resume it
+        # against a different upload after a browser session or task id is reused.
+        if resuming:
+            previous_signature = (prior.get("dataset_metadata") or {}).get("approval_signature")
+            current_signature = dataset_metadata["approval_signature"]
+            if not previous_signature or previous_signature != current_signature:
+                error = "Approval cannot be resumed because the dataset changed or predates dataset binding."
+                prior["status"] = "failed"
+                prior.setdefault("errors", []).append({"step": prior.get("current_step"), "error": error})
+                self.state_store.save(prior)
+                self.tracer.record({"task_id": task_id, "workflow_id": task_id, "correlation_id": task_id,
+                                    "event": "approval_resume_rejected", "status": "failed", "error": error})
+                return {"task_id": task_id, "status": "failed", "results": {}, "state": prior, "error": error}
         if prior and prior.get("status") == "rejected":
             return {"task_id": task_id, "status": "rejected", "results": {}, "state": prior}
         state = {"task_id": task_id, "user_request": user_request, "plan": None, "current_step": None,

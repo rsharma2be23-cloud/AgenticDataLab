@@ -9,7 +9,8 @@ import sys
 import google.generativeai as genai
 import json
 
-genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
+if os.getenv("GEMINI_API_KEY"):
+    genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
 
 
 # Allow imports
@@ -53,6 +54,8 @@ st.dataframe(df.head(), use_container_width=True)
 st.markdown("---")
 
 def gemini_explain_model(result):
+    if not os.getenv("GEMINI_API_KEY"):
+        return "LLM explanation is unavailable because GEMINI_API_KEY is not configured. Metrics and comparisons shown above are computed by the local model tools."
     try:
         model = genai.GenerativeModel("gemini-2.0-flash")
 
@@ -73,8 +76,8 @@ def gemini_explain_model(result):
         response = model.generate_content(prompt)
         return response.text
 
-    except Exception as e:
-        return f"Gemini Error: {str(e)}"
+    except Exception:
+        return "Gemini could not generate an explanation. The computed model results remain available above."
 
 
 # ======================================================
@@ -205,7 +208,9 @@ st.subheader("✨ Gemini Insights (AutoML Explanation)")
 
 if st.button("💡 Explain My Model with Gemini"):
     with st.spinner("Generating insights…"):
-        explanation = gemini_explain_model(result)
+        current_result = st.session_state.get("model_output")
+        explanation = (gemini_explain_model(current_result) if current_result else
+                      "Train a model first. No model result is available to explain.")
 
     st.markdown("### 📘 Model Explanation")
     st.write(explanation)

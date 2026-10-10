@@ -175,7 +175,11 @@ def run(output_path=None):
     report = {"schema_version": 1, "benchmark": manifest["benchmark"], "dataset_version": manifest["dataset_version"],
               "seed": 20261010, "created_at": datetime.now(timezone.utc).isoformat(),
               "metrics": calculate_metrics(records), "records": records}
-    output_path = output_path or os.getenv("AGENTIC_BENCHMARK_OUTPUT", os.path.join(ROOT, "benchmark_results", "latest.json"))
+    output_path = output_path or os.getenv("AGENTIC_BENCHMARK_OUTPUT")
+    if output_path is None:
+        # Each invocation gets a new file so historical benchmark evidence is preserved.
+        stamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%S_%fZ")
+        output_path = os.path.join(ROOT, "benchmark_results", f"run_{stamp}.json")
     output_path = os.path.abspath(output_path)
     os.makedirs(os.path.dirname(output_path), exist_ok=True)
     with open(output_path, "w", encoding="utf-8") as stream:

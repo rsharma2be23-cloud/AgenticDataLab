@@ -94,7 +94,7 @@ The versioned fixture data and task manifest are in `benchmarks/`. Execute with:
 python benchmarks/run_benchmark.py
 ```
 
-The runner saves each real success, validation rejection, or failure to `benchmark_results/latest.json` (or `AGENTIC_BENCHMARK_OUTPUT`). It asks the local deterministic planner to produce a plan for each valid task, then runs the applicable tool path; no paid model service is called. Metrics are: task completion (successful valid tasks plus correctly rejected invalid/ambiguous tasks divided by all tasks); schema validity (accepted tool schemas or expected safe rejection divided by all tasks); plan validity (valid planner schemas divided by valid-plan tasks); tool-selection match (expected operation appears in the locally generated plan, divided by tasks with an expected tool); tool success (successful valid operations divided by valid tasks); evidence coverage (successful results with at least one non-status result field divided by successful valid operations); failure rate (unexpected failures divided by all tasks); retry rate (tasks with an actual timeout retry divided by all tasks); and mean wall duration. These are deterministic harness checks, not validated general-purpose agent accuracy scores.
+The runner saves each real success, validation rejection, or failure to a fresh timestamped file in `benchmark_results/` by default (or to `AGENTIC_BENCHMARK_OUTPUT`). It asks the local deterministic planner to produce a plan for each valid task, then runs the applicable tool path; no paid model service is called. Metrics are: task completion (successful valid tasks plus correctly rejected invalid/ambiguous tasks divided by all tasks); schema validity (accepted tool schemas or expected safe rejection divided by all tasks); plan validity (valid planner schemas divided by valid-plan tasks); tool-selection match (expected operation appears in the locally generated plan, divided by tasks with an expected tool); tool success (successful valid operations divided by valid tasks); evidence coverage (successful results with at least one non-status result field divided by successful valid operations); failure rate (unexpected failures divided by all tasks); retry rate (tasks with an actual timeout retry divided by all tasks); and mean wall duration. These are deterministic harness checks, not validated general-purpose agent accuracy scores.
 
 ### Configuration and validation
 
@@ -108,6 +108,89 @@ python -m unittest discover -s tests -v
 ```
 
 In the available Python 3.12.14 runtime, `compileall` succeeded; the Phase 3 infrastructure suite ran 11 tests with 10 passing and the MCP protocol integration test skipped; all 6 existing agentic architecture tests passed. The full discovery run had one import error because `scikit-learn` was unavailable, and it skipped MCP protocol integration because the installed runtime did not include the SDK. The benchmark result records 9 task outcomes, including failures caused by the missing `scikit-learn` and `matplotlib` packages. Live MCP discovery/calls and the ML model tests need a project environment installed from `requirements.txt` before they can be verified.
+
+## Phase 4: local app, deployment, and demo
+
+### Install and start
+
+Use Python 3.12 (the Docker image uses Python 3.12). In PowerShell:
+
+```powershell
+python -m venv .venv
+.\.venv\Scripts\Activate.ps1
+python -m pip install --upgrade pip
+pip install -r requirements.txt
+Copy-Item .env.example .env
+streamlit run streamlit_app/app.py
+```
+
+The Home page accepts CSV uploads up to 50 MiB / 100,000 rows and keeps the frame in the current Streamlit session. The Agentic Analysis page invokes `ExecutionEngine` and its existing typed `ToolRegistry`; it shows data quality, selected plan, tool outputs, model comparison, recorded metrics, report references, trace events, approval actions, and persisted model-run summaries. LLM text is labeled separately from tool-computed results. No credential is required for heuristic planning or numerical tools. `GEMINI_API_KEY` enables optional Gemini planner/model narrative features; `GOOGLE_API_KEY` enables the optional report narrative. MLflow tracking is disabled unless `MLFLOW_TRACKING_URI` is configured. SHAP is optional and model-native/permutation fallbacks are used when possible.
+
+### Docker
+
+Copy `.env.example` to `.env`, optionally fill only the credentials/integrations you intend to use, then run:
+
+```powershell
+docker compose up --build
+```
+
+Open `http://localhost:8501`. `compose.yaml` persists task/traces, model artifacts, reports, and Streamlit storage in named volumes. The container runs as `appuser`; its health check calls Streamlit's `/_stcore/health` endpoint. No database service is needed for the file-backed stores. Docker configuration has been added, but image build and live health validation remain unverified when Docker is unavailable.
+
+### Repeatable synthetic demo
+
+Upload `benchmarks/synthetic_classification.csv` in the app. In Agentic Analysis, run quality analysis, then use a goal such as “Profile the dataset, run EDA, compare classification models for target, evaluate the best candidate, explain it if possible, and generate a report.” The page displays tool-returned outcomes and real traces. Model training and SHAP explanation require dependencies from `requirements.txt` and a generated model artifact; the report can still be generated from available outputs. The CSV is generated synthetic fixture data.
+
+### Configuration and security boundaries
+
+`.env.example` contains blank placeholders. Do not commit `.env`. The app currently accepts CSV only; malformed content, duplicate columns, empty files, oversized uploads, and over-limit row counts are rejected with user-facing messages. Tool schemas validate arguments, `FileTools` resolves paths under its storage root, and no unrestricted shell or generated Python is executed. Generated notebooks contain markdown and JSON outputs and are not executed. Data stays in local app storage unless an enabled external Gemini/MLflow integration receives relevant inputs. This is a single-process local deployment design, not a security-reviewed multi-user production service; authentication, tenant isolation, durable distributed storage, and sandboxing are not implemented.
+
+The local A2A bus is process-local. Approval decisions are persisted and the UI resumes only after explicit approval; resumption is bound to the reviewed dataset digest. File-backed JSON stores are suitable for this demo but not concurrent multi-replica writes.
+
+### Tests and benchmark
+
+```powershell
+python -m unittest discover -s tests -p test_phase4_integration.py -v
+python -m unittest discover -s tests -p test_phase3_infrastructure.py -v
+python -m unittest discover -s tests -v
+python benchmarks/run_benchmark.py
+```
+
+The benchmark writes a fresh timestamped `benchmark_results/run_*.json` on each run, preserving prior results. Set `AGENTIC_BENCHMARK_OUTPUT` to choose a specific output path. The runner records dependency-related failures as outcomes and does not fabricate success. For interview discussion, see [INTERVIEW_GUIDE.md](INTERVIEW_GUIDE.md).
+
+### Validation snapshot (2026-10-10)
+
+In the available Python 3.12.14 runtime, `compileall` and `git diff --check` passed. Phase 4 integration tests: 5 passed, 1 skipped (model training skipped because scikit-learn is absent). Phase 3 infrastructure tests: 10 passed, 1 skipped (MCP SDK absent). Agentic architecture tests: 6 passed. Full unittest discovery is blocked by the existing Phase 2 test module failing to import `sklearn`. Streamlit startup and Docker build/health checks could not run because Streamlit and Docker are unavailable in this runtime. The executed benchmark is saved in `benchmark_results/run_20261010T100528_812535Z.json`: 9 tasks produced 2 successes, 2 expected rejections, and 5 dependency/feature failures (three missing scikit-learn model tasks, explainability without a trained artifact, and report generation without matplotlib). These counts describe this environment run only.
+
+### Architecture
+
+```mermaid
+flowchart LR
+    U[User / CSV upload] --> S[Streamlit workspace]
+    S --> P[PlannerAgent]
+    P --> V[Plan schema validation]
+    V --> E[ExecutionEngine]
+    E --> R[Allowlisted ToolRegistry]
+    R --> T[Profiler / Quality / EDA / ML / Explain / Report tools]
+    T --> C[CriticAgent]
+    C -->|bounded retry| P
+    C -->|accept / fail| O[Actual results]
+    E --> A[TaskStateStore]
+    E --> X[ExecutionTracer]
+    E --> H[Approval gate]
+    H -->|explicit decision| E
+    E -. optional .-> M[Gemini planner/narrative]
+    R -. optional .-> MCP[MCP stdio server]
+    E -. local messages .-> A2A[A2A bus]
+    R -. optional .-> ML[MLflow]
+```
+
+### Troubleshooting
+
+- `ModuleNotFoundError: sklearn`, `matplotlib`, `streamlit`, or `mcp`: activate the project environment and install `requirements.txt`; MCP protocol mode additionally requires its SDK.
+- Gemini planning is unavailable: remove/set no key to use deterministic local planning, or configure `GEMINI_API_KEY` and check provider/network access. Numerical tools do not require Gemini.
+- Model tools fail: check the tool's displayed error and install the required ML dependencies; ensure the chosen target is present and has enough usable rows/classes.
+- No experiment records: history is populated from persisted successful workflow training outputs. MLflow is optional and only logs when configured.
+- Docker can't read `.env`: create it from `.env.example` in the repository root before `docker compose up --build`.
 
 
 # Problem Statement

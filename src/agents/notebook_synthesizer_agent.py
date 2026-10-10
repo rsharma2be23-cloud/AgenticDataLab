@@ -38,7 +38,10 @@ class NotebookSynthesizerAgent:
         nb_bytes = self.notebook_tool.create_notebook(notebook_content)
 
         # Save using FileTools
-        self.file_tool.write_binary(nb_path, nb_bytes)
+        saved = self.file_tool.write_binary(nb_path, nb_bytes)
+        if not isinstance(saved, dict) or saved.get("status") != "success":
+            error = saved.get("error", "Report could not be saved.") if isinstance(saved, dict) else "Report could not be saved."
+            return {"status": "error", "error": error}
 
         # Save output in memory
         self.memory.save("notebook_output", {"path": nb_path})
